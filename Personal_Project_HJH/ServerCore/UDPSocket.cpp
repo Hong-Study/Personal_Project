@@ -3,7 +3,7 @@
 
 int UDPSocket::Bind(const SocketAddress& inBindAddress)
 {
-	int error = bind(mSocket, &inBindAddress.mSockAddr, inBindAddress.GetSize());
+	int error = bind(mSocket, (sockaddr*)&inBindAddress.mSockAddr, inBindAddress.GetSize());
 	if (error != 0)
 	{
 		SocketUtils::ReportError("UDPSocket::Bind");
@@ -18,7 +18,7 @@ int UDPSocket::SendTo(const void* inToSend, int inLength, const SocketAddress& i
 	int byteSentCount = sendto(mSocket,
 		static_cast<const char*>(inToSend),
 		inLength,
-		0, &inToAddress.mSockAddr, inToAddress.GetSize());
+		0, (sockaddr*)&inToAddress.mSockAddr, inToAddress.GetSize());
 	if (byteSentCount <= 0)
 	{
 		//we'll return error as negative number to indicate less than requested amount of bytes sent...
@@ -38,7 +38,7 @@ int UDPSocket::ReceiveFrom(void* inToReceive, int inMaxLength, SocketAddress& ou
 	int readByteCount = recvfrom(mSocket,
 		static_cast<char*>(inToReceive),
 		inMaxLength,
-		0, &outFromAddress.mSockAddr, &fromLength);
+		0, (sockaddr*)&outFromAddress.mSockAddr, &fromLength);
 	if (readByteCount >= 0)
 	{
 		return readByteCount;

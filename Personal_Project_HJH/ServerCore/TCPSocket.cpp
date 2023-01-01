@@ -3,7 +3,7 @@
 
 int TCPSocket::Connect(const SocketAddress& inAddress)
 {
-	int err = connect(mSocket, &inAddress.mSockAddr, inAddress.GetSize());
+	int err = connect(mSocket, (sockaddr*)&inAddress.mSockAddr, inAddress.GetSize());
 	if (err < 0)
 	{
 		SocketUtils::ReportError("TCPSocket::Connect");
@@ -26,7 +26,7 @@ int TCPSocket::Listen(int inBackLog)
 TCPSocketPtr TCPSocket::Accept(SocketAddress& inFromAddress)
 {
 	socklen_t length = inFromAddress.GetSize();
-	SOCKET newSocket = accept(mSocket, &inFromAddress.mSockAddr, &length);
+	SOCKET newSocket = accept(mSocket, (sockaddr*)(&inFromAddress.mSockAddr), &length);
 
 	if (newSocket != INVALID_SOCKET)
 	{
@@ -63,7 +63,7 @@ int32_t	TCPSocket::Receive(void* inData, size_t inLen)
 
 int TCPSocket::Bind(const SocketAddress& inBindAddress)
 {
-	int error = bind(mSocket, &inBindAddress.mSockAddr, inBindAddress.GetSize());
+	int error = bind(mSocket, (sockaddr*)&inBindAddress.mSockAddr, inBindAddress.GetSize());
 	if (error != 0)
 	{
 		SocketUtils::ReportError("TCPSocket::Bind");
