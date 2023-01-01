@@ -52,7 +52,7 @@ public class Weapon : MonoBehaviour
     {
         GameObject instant_bullet = Instantiate(bullet, bullet_pos.position, bullet_pos.rotation);
         Rigidbody bullet_rigid = instant_bullet.GetComponent<Rigidbody>();
-        bullet_rigid.velocity = bullet_pos.forward * 500;
+        bullet_rigid.velocity = bullet_pos.forward * 100;
 
         GameObject instant_bullet_case = Instantiate(bullet_case, bullet_case_pos.position, bullet_case_pos.rotation);
         Rigidbody bullet_case_rigid = instant_bullet_case.GetComponent<Rigidbody>();

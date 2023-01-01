@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
     bool swap_2;
     bool fire;
     bool reload;
+    bool g_down;
 
     bool is_dodge;
     bool is_jumped;
@@ -48,10 +49,11 @@ public class Player : MonoBehaviour
     Weapon equipWeapon;
     public GameObject[] grenades;
     public GameObject[] weapons;
+    public GameObject throw_grenade;
     public bool[] has_weapon;
     public Camera followCamera;
 
-    public 
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -88,8 +90,33 @@ public class Player : MonoBehaviour
         Dodge();
         SwapWeapon();
         Interact();
+        Grenade();
     }
 
+    void Grenade()
+    {
+        if(grenade == 0)
+        {
+            return;
+        }
+        if(g_down && !is_reload && !is_dodge && !is_jumped && !is_swap)
+        {
+            Ray ray = followCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit rayHit;
+            if(Physics.Raycast(ray, out rayHit, 100))
+            {
+                Vector3 nextVec = rayHit.point - transform.position;
+                nextVec.y = 5;
+
+                GameObject instant_grenade = Instantiate(throw_grenade, transform.position, transform.rotation);
+                Rigidbody rigid_grenade = instant_grenade.GetComponent<Rigidbody>();
+                rigid_grenade.AddForce(nextVec * 2, ForceMode.Impulse);
+                rigid_grenade.AddTorque(Vector3.back * 5, ForceMode.Impulse);
+                grenade -= 1;
+                grenades[grenade].SetActive(false);
+            }
+        }
+    }
     void SwapWeapon()
     {
         int weaponIndex = -1;
@@ -125,6 +152,7 @@ public class Player : MonoBehaviour
         swap_1 = Input.GetButtonDown("Swap1");
         swap_2 = Input.GetButtonDown("Swap2");
         reload = Input.GetButtonDown("Reload");
+        g_down = Input.GetButtonDown("Fire2");
     }
 
     void Attack()
