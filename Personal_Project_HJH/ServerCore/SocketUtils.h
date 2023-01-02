@@ -1,33 +1,36 @@
 #pragma once
-enum SocketAddressFamily
-{
-	INET = AF_INET,
-	INET6 = AF_INET6
-};
+#include "NetAddress.h"
 
 class SocketUtils
 {
 public:
+	static LPFN_ACCEPTEX AcceptEx;
+	static LPFN_CONNECTEX ConnectEx;
+	static LPFN_DISCONNECTEX DisconnectEx;
 
-	static bool			StaticInit();
-	static void			CleanUp();
+public:
+	static void Init();
+	static void Clear();
 
-	static void			ReportError(const char* inOperationDesc);
-	static int			GetLastError();
+	static SOCKET CreateSocket();
+	static void Close(SOCKET& socket);
 
-	static int			Select(const vector< TCPSocketPtr >* inReadSet,
-		vector< TCPSocketPtr >* outReadSet,
-		const vector< TCPSocketPtr >* inWriteSet,
-		vector< TCPSocketPtr >* outWriteSet,
-		const vector< TCPSocketPtr >* inExceptSet,
-		vector< TCPSocketPtr >* outExceptSet);
+	static bool SetLinger(SOCKET socket, uint16 onoff, uint16 linger);
+	static bool SetReuseAddress(SOCKET socket, bool flag);
+	static bool SetRecvBufferSize(SOCKET socket, int32 size);
+	static bool SetSendBufferSize(SOCKET socket, int32 size);
+	static bool SetTcpNoDelay(SOCKET socket, bool flag);
+	static bool SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket);
 
-	static UDPSocketPtr	CreateUDPSocket(SocketAddressFamily inFamily);
-	static TCPSocketPtr	CreateTCPSocket(SocketAddressFamily inFamily);
-
+	static bool Bind(SOCKET socket, NetAddress netAddr);
+	static bool BindAnyAddress(SOCKET socket, uint16 port);
+	static bool Listen(SOCKET socket, int32 backlog = 10);
 private:
-
-	inline static fd_set* FillSetFromVector(fd_set& outSet, const vector< TCPSocketPtr >* inSockets, int& ioNaxNfds);
-	inline static void FillVectorFromSet(vector< TCPSocketPtr >* outSockets, const vector< TCPSocketPtr >* inSockets, const fd_set& inSet);
+	static bool BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn);
 };
 
+template<typename T>
+static inline bool SetSockOpt(SOCKET socket, int32 level, int32 optName, T optVal)
+{
+	return SOCKET_ERROR != ::setsockopt(socket, level, optName, reinterpret_cast<char*>(&optVal), sizeof(T));
+}

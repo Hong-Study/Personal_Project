@@ -1,150 +1,102 @@
 #include "pch.h"
 #include "SocketUtils.h"
+#include "SocketUtils.h"
 
-bool SocketUtils::StaticInit()
+LPFN_CONNECTEX		SocketUtils::ConnectEx = nullptr;
+LPFN_DISCONNECTEX	SocketUtils::DisconnectEx = nullptr;
+LPFN_ACCEPTEX		SocketUtils::AcceptEx = nullptr;
+
+void SocketUtils::Init()
 {
-#if _WIN32
 	WSADATA wsaData;
-	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (iResult != NO_ERROR)
-	{
-		ReportError("Starting Up");
-		return false;
-	}
-#endif
-	return true;
+	if (::WSAStartup(MAKEWORD(2, 2), OUT & wsaData) != 0)
+		HandleError("WSAStartUP");
+
+	/* 런타임에 주소 얻어오는 API */
+	SOCKET dummySocket = CreateSocket();
+	if (!BindWindowsFunction(dummySocket, WSAID_CONNECTEX, reinterpret_cast<LPVOID*>(&ConnectEx)))
+		HandleError("ConnectEx Bind");
+	if(!BindWindowsFunction(dummySocket, WSAID_DISCONNECTEX, reinterpret_cast<LPVOID*>(&DisconnectEx)))
+		HandleError("DisconnectEx Bind");
+	if(!BindWindowsFunction(dummySocket, WSAID_ACCEPTEX, reinterpret_cast<LPVOID*>(&AcceptEx)))
+		HandleError("AccpetEx Bind");
+
+	Close(dummySocket);
 }
 
-void SocketUtils::CleanUp()
+void SocketUtils::Clear()
 {
-#if _WIN32
-	WSACleanup();
-#endif
+	::WSACleanup();
 }
 
-
-void SocketUtils::ReportError(const char* inOperationDesc)
+bool SocketUtils::BindWindowsFunction(SOCKET socket, GUID guid, LPVOID* fn)
 {
-#if _WIN32
-	LPVOID lpMsgBuf;
-	DWORD errorNum = GetLastError();
-
-	FormatMessage(
-		FORMAT_MESSAGE_ALLOCATE_BUFFER |
-		FORMAT_MESSAGE_FROM_SYSTEM |
-		FORMAT_MESSAGE_IGNORE_INSERTS,
-		NULL,
-		errorNum,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		(LPTSTR)&lpMsgBuf,
-		0, NULL);
-
-
-	//LOG("Error %s: %d- %s", inOperationDesc, errorNum, lpMsgBuf);
-#else
-	LOG("Error: %hs", inOperationDesc);
-#endif
+	DWORD bytes = 0;
+	return SOCKET_ERROR != ::WSAIoctl(socket, SIO_GET_EXTENSION_FUNCTION_POINTER, &guid, sizeof(guid), fn, sizeof(*fn), OUT & bytes, NULL, NULL);
 }
 
-int SocketUtils::GetLastError()
+bool SocketUtils::Bind(SOCKET socket, NetAddress netAddr)
 {
-#if _WIN32
-	return WSAGetLastError();
-#else
-	return errno;
-#endif
-
+	return SOCKET_ERROR != ::bind(socket, reinterpret_cast<SOCKADDR*>(&netAddr.GetSockAddr()), sizeof(SOCKADDR_IN));
 }
 
-UDPSocketPtr SocketUtils::CreateUDPSocket(SocketAddressFamily inFamily)
+bool SocketUtils::BindAnyAddress(SOCKET socket, uint16 port)
 {
-	SOCKET s = socket(inFamily, SOCK_DGRAM, IPPROTO_UDP);
+	SOCKADDR_IN myAddress;
+	myAddress.sin_family = AF_INET;
+	myAddress.sin_addr.s_addr = ::htonl(INADDR_ANY);
+	myAddress.sin_port = ::htons(port);
 
-	if (s != INVALID_SOCKET)
-	{
-		return UDPSocketPtr(new UDPSocket(s));
-	}
-	else
-	{
-		ReportError("SocketUtils::CreateUDPSocket");
-		return nullptr;
-	}
+	return SOCKET_ERROR != ::bind(socket, reinterpret_cast<const SOCKADDR*>(&myAddress), sizeof(myAddress));
 }
 
-TCPSocketPtr SocketUtils::CreateTCPSocket(SocketAddressFamily inFamily)
+bool SocketUtils::Listen(SOCKET socket, int32 backlog)
 {
-	SOCKET s = socket(inFamily, SOCK_STREAM, IPPROTO_TCP);
-
-	if (s != INVALID_SOCKET)
-	{
-		return TCPSocketPtr(new TCPSocket(s));
-	}
-	else
-	{
-		ReportError("SocketUtils::CreateTCPSocket");
-		return nullptr;
-	}
+	return SOCKET_ERROR != ::listen(socket, backlog);
 }
 
-fd_set* SocketUtils::FillSetFromVector(fd_set& outSet, const vector< TCPSocketPtr >* inSockets, int& ioNaxNfds)
+bool SocketUtils::SetLinger(SOCKET socket, uint16 onoff, uint16 linger)
 {
-	if (inSockets)
-	{
-		FD_ZERO(&outSet);
-
-		for (const TCPSocketPtr& socket : *inSockets)
-		{
-			FD_SET(socket->mSocket, &outSet);
-#if !_WIN32
-			ioNaxNfds = std::max(ioNaxNfds, socket->mSocket);
-#endif
-		}
-		return &outSet;
-	}
-	else
-	{
-		return nullptr;
-	}
+	LINGER option;
+	option.l_onoff = onoff;
+	option.l_linger = linger;
+	return SetSockOpt(socket, SOL_SOCKET, SO_LINGER, option);
 }
 
-void SocketUtils::FillVectorFromSet(vector< TCPSocketPtr >* outSockets, const vector< TCPSocketPtr >* inSockets, const fd_set& inSet)
+bool SocketUtils::SetReuseAddress(SOCKET socket, bool flag)
 {
-	if (inSockets && outSockets)
-	{
-		outSockets->clear();
-		for (const TCPSocketPtr& socket : *inSockets)
-		{
-			if (FD_ISSET(socket->mSocket, &inSet))
-			{
-				outSockets->push_back(socket);
-			}
-		}
-	}
+	return SetSockOpt(socket, SOL_SOCKET, SO_REUSEADDR, flag);
 }
 
-int SocketUtils::Select(const vector< TCPSocketPtr >* inReadSet,
-	vector< TCPSocketPtr >* outReadSet,
-	const vector< TCPSocketPtr >* inWriteSet,
-	vector< TCPSocketPtr >* outWriteSet,
-	const vector< TCPSocketPtr >* inExceptSet,
-	vector< TCPSocketPtr >* outExceptSet)
+bool SocketUtils::SetRecvBufferSize(SOCKET socket, int32 size)
 {
-	//build up some sets from our vectors
-	fd_set read, write, except;
+	return SetSockOpt(socket, SOL_SOCKET, SO_RCVBUF, size);
+}
 
-	int nfds = 0;
+bool SocketUtils::SetSendBufferSize(SOCKET socket, int32 size)
+{
+	return SetSockOpt(socket, SOL_SOCKET, SO_SNDBUF, size);
+}
 
-	fd_set* readPtr = FillSetFromVector(read, inReadSet, nfds);
-	fd_set* writePtr = FillSetFromVector(write, inWriteSet, nfds);
-	fd_set* exceptPtr = FillSetFromVector(except, inExceptSet, nfds);
+bool SocketUtils::SetTcpNoDelay(SOCKET socket, bool flag)
+{
+	return SetSockOpt(socket, SOL_SOCKET, TCP_NODELAY, flag);
+}
 
-	int toRet = select(nfds + 1, readPtr, writePtr, exceptPtr, nullptr);
+// ListenSocket의 특성을 ClientSocket에 그대로 적용
+bool SocketUtils::SetUpdateAcceptSocket(SOCKET socket, SOCKET listenSocket)
+{
+	return SetSockOpt(socket, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, listenSocket);
+}
 
-	if (toRet > 0)
-	{
-		FillVectorFromSet(outReadSet, inReadSet, read);
-		FillVectorFromSet(outWriteSet, inWriteSet, write);
-		FillVectorFromSet(outExceptSet, inExceptSet, except);
-	}
-	return toRet;
+SOCKET SocketUtils::CreateSocket()
+{
+	return ::WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
+}
+
+void SocketUtils::Close(SOCKET& socket)
+{
+	if (socket != INVALID_SOCKET)
+		::closesocket(socket);
+	socket = INVALID_SOCKET;
 }
