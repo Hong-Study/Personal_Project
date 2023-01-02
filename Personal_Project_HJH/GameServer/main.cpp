@@ -1,36 +1,23 @@
 #include "pch.h"
-#include "Protocol.pb.h"
+#include "GameSession.h"
 
-int main() {
-	SocketUtils::StaticInit();
-	TCPSocketPtr listen = SocketUtils::CreateTCPSocket(INET);
-	SocketAddress addr(INADDR_ANY, 8000);
-	BYTE ch[100];
-	ZeroMemory(ch, 100);
-	if (listen->Bind(addr) != NO_ERROR) {
-		cout << "Bind Faild" << endl;
-	}
-	if(listen->Listen() != NO_ERROR)
-		cout << "Listen Faild" << endl;
+int main()
+{
+	ServerServiceRef service = make_shared<ServerService>(10);
+	service->SetFactory(make_shared<GameSession>);
+	service->SetIocpCore(make_shared<IocpCore>());
+	service->SetNetAddress(NetAddress(L"127.0.0.1", 8000));
 
-	TCPSocketPtr accpet;
-	SocketAddress client_addr;
-	while (true) {
-		if ((accpet = listen->Accept(client_addr)) == nullptr) {
-			cout << "Accept Failed" << endl;
-			continue;
-		}
-		break;
-	}
-	int strlen = 0;
-	while (true) {
-		Protocol::S_TEST pkt;
-		cout << "Recv" << endl;
-		if ((strlen = accpet->Receive(ch, 100)) <= 0)
-			break;
-		pkt.ParseFromArray(ch, strlen);
-		cout << strlen << " : " << pkt.id() << " " << pkt.hp() << " " << pkt.attack() << endl;
-	}
+	if (!service->Start())
+		HandleError("Start Error");
 
-	SocketUtils::CleanUp();
+	for (int i = 0; i < THREAD_SIZE; i++) {
+		GThreadPool->enqueue([=]()
+			{
+				while (true) {
+					service->GetIocpCore()->Dispatch();
+				}
+			});
+	}
+	GThreadPool->Join();
 }

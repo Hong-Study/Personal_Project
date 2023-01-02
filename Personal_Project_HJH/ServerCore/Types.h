@@ -1,52 +1,21 @@
 #pragma once
+#include <iostream>
+#include <memory>
 
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#define NOMINMAX
+using BYTE = unsigned char;
+using int8 = __int8;
+using int16 = __int16;
+using int32 = __int32;
+using int64 = __int64;
+using uint8 = unsigned __int8;
+using uint16 = unsigned __int16;
+using uint32 = unsigned __int32;
+using uint64 = unsigned __int64;
 
-#include "Windows.h"
-#include "WinSock2.h"
-#include "Ws2tcpip.h"
-typedef int socklen_t;
-//typedef char* receiveBufer_t;
-#else
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <unistd.h>
-//typedef void* receiveBufer_t;
-typedef int SOCKET;
-const int NO_ERROR = 0;
-const int INVALID_SOCKET = -1;
-const int WSAECONNRESET = ECONNRESET;
-const int WSAEWOULDBLOCK = EAGAIN;
-const int SOCKET_ERROR = -1;
-#endif
-
-
-#include "memory"
-
-#include "vector"
-#include "unordered_map"
-#include "string"
-#include "list"
-#include "queue"
-#include "deque"
-#include "unordered_set"
-#include "cassert"
-
-using std::shared_ptr;
-using std::unique_ptr;
-using std::vector;
-using std::queue;
-using std::list;
-using std::deque;
-using std::unordered_map;
-using std::string;
-using std::unordered_set;
-
-class RoboCat;
-class GameObject;
+// shared_ptr
+using IocpCoreRef		= std::shared_ptr<class IocpCore>;
+using IocpObjectRef		= std::shared_ptr<class IocpObject>;
+using SessionRef		= std::shared_ptr<class Session>;
+using ListenerRef		= std::shared_ptr<class Listener>;
+using ServerServiceRef	= std::shared_ptr<class ServerService>;
+using ClientServiceRef	= std::shared_ptr<class ClientService>;
