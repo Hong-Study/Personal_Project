@@ -62,11 +62,8 @@ public class Networking : MonoBehaviour
                     Attack = 10
                 };
                 byte[] datas = pkt.ToByteArray();
-                while (true)
-                {
-                    len = socket.Send(datas);
-                    Debug.Log(len + " : Success Send");
-                }
+                len = socket.Send(datas);
+                Debug.Log(len + " : Success Send");
                 //S_TEST pkt2 = new S_TEST();
                 //pkt2.MergeFrom(datas);
 
