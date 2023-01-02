@@ -7,10 +7,16 @@
     <Filter Include="pch">
       <UniqueIdentifier>{53d2fab3-9972-4fbc-b0c7-3e699884f629}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Protocol">
+      <UniqueIdentifier>{5ed1f776-86fc-44ac-b425-cc28b07d261b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>pch</Filter>
+    </ClInclude>
+    <ClInclude Include="Protocol.pb.h">
+      <Filter>Protocol</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -19,6 +25,9 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Protocol.pb.cc">
+      <Filter>Protocol</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
