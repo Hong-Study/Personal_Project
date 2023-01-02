@@ -6,16 +6,22 @@ using UnityEngine.AI;
 
 public class Enemy : MonoBehaviour
 {
+    public enum Type { A, B, C , D};
+    public Type enemy_type;
     public int max_health;
     public int cur_health;
     public Transform target;
     public bool is_chase;
+    public BoxCollider melee_area;
+    public bool is_attack;
+    public GameObject bullet;
+    public bool is_dead;
 
-    Rigidbody rigid;
-    BoxCollider box_collider;
-    Material mat;
-    NavMeshAgent nav;
-    Animator anim;
+    public Rigidbody rigid;
+    public BoxCollider box_collider;
+    public MeshRenderer[] meshs;
+    public NavMeshAgent nav;
+    public Animator anim;
 
     void Chase_Start()
     {
@@ -26,15 +32,96 @@ public class Enemy : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody>();
         box_collider = GetComponent<BoxCollider>();
-        mat = GetComponentInChildren<MeshRenderer>().material;
+        meshs = GetComponentsInChildren<MeshRenderer>();
         nav = GetComponent<NavMeshAgent>();
         anim = GetComponentInChildren<Animator>();
 
-        Invoke("Chase_Start", 2);
+        if(enemy_type != Type.D)
+            Invoke("Chase_Start", 2);
+    }
+
+    void Targeting()
+    {
+        if(is_dead || enemy_type == Type.D)
+        {
+            return;
+        }
+        float target_radius = 0;
+        float target_range = 0;
+
+        switch (enemy_type)
+        {
+            case Type.A:
+                target_radius = 1.5f;
+                target_range = 2f;
+                break;
+            case Type.B:
+                target_radius = 1f;
+                target_range = 12f;
+                break;
+            case Type.C:
+                target_radius = 0.5f;
+                target_range = 25f;
+                break;
+            default:
+                break;
+        }
+
+        RaycastHit[] rayHits = Physics.SphereCastAll(transform.position, target_radius, transform.forward, target_range, LayerMask.GetMask("Player"));
+        if(rayHits.Length > 0 && !is_attack)
+        {
+            StartCoroutine(Attack());
+        }
+    }
+
+    IEnumerator Attack()
+    {
+        is_chase = false;
+        is_attack = true;
+        anim.SetBool("isAttack", true);
+
+        switch (enemy_type)
+        {
+            case Type.A:
+                yield return new WaitForSeconds(0.6f);
+                melee_area.enabled = true;
+
+                yield return new WaitForSeconds(1f);
+                melee_area.enabled = false;
+                break;
+            case Type.B:
+                yield return new WaitForSeconds(0.1f);
+                rigid.AddForce(transform.forward * 20, ForceMode.Impulse);
+                melee_area.enabled = true;
+
+                yield return new WaitForSeconds(0.5f);
+                rigid.velocity = Vector3.zero;
+                melee_area.enabled = false;
+
+                yield return new WaitForSeconds(2f);
+                break;
+            case Type.C:
+                yield return new WaitForSeconds(0.5f);
+                GameObject instant_missile = Instantiate(bullet, transform.position + (Vector3.up * 2), transform.rotation);
+                Rigidbody rigid_missile = instant_missile.GetComponent<Rigidbody>();
+                rigid_missile.velocity = transform.forward * 20;
+
+                yield return new WaitForSeconds(2f);
+                break;
+            default:
+                break;
+        }
+
+        
+
+        is_chase = true;
+        is_attack = false;
+        anim.SetBool("isAttack", false);
     }
 
     void FixedUpdate()
     {
+        Targeting();
         Freeze_Velocity();
     }
 
@@ -50,9 +137,10 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if (is_chase)
+        if (nav.enabled)
         {
             nav.SetDestination(target.position);
+            nav.isStopped = !is_chase;
         }
         
     }
@@ -90,14 +178,24 @@ public class Enemy : MonoBehaviour
         
         if(cur_health > 0)
         {
-            mat.color = Color.red;
+            foreach(MeshRenderer mesh in meshs)
+            {
+                mesh.material.color = Color.red;
+            }
             yield return new WaitForSeconds(0.3f);
-            mat.color = Color.white;
+            foreach (MeshRenderer mesh in meshs)
+            {
+                mesh.material.color = Color.white;
+            }
         }
         else
         {
             gameObject.layer = 13;
-            mat.color = Color.gray;
+            is_dead = true;
+            foreach (MeshRenderer mesh in meshs)
+            {
+                mesh.material.color = Color.gray;
+            }
             is_chase = false;
             nav.enabled = false;
             anim.SetTrigger("doDie");
@@ -114,7 +212,11 @@ public class Enemy : MonoBehaviour
             {
                 rigid.AddForce((react_vec * 10), ForceMode.Impulse);
             }
-            Destroy(gameObject, 2);
+
+            if(enemy_type != Type.D)
+            {
+                Destroy(gameObject, 2);
+            }
             yield return null;
         }
     }

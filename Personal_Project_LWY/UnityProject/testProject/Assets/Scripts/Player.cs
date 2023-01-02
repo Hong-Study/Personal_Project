@@ -28,10 +28,14 @@ public class Player : MonoBehaviour
     bool is_fire;
     bool is_reload;
     bool is_border;
+    bool is_damaged;
 
     float fire_delay;
 
     public int ammo;
+
+    public int health;
+    public int max_health;
 
     public int coin;
     public int maxCoin;
@@ -47,6 +51,7 @@ public class Player : MonoBehaviour
     Rigidbody rigid;
     GameObject nearObj;
     Weapon equipWeapon;
+    MeshRenderer[] meshs;
     public GameObject[] grenades;
     public GameObject[] weapons;
     public GameObject throw_grenade;
@@ -59,6 +64,7 @@ public class Player : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody>();
         anim = GetComponentInChildren<Animator>();
+        meshs = GetComponentsInChildren<MeshRenderer>();
     }
 
     void FreezeRotation()
@@ -304,6 +310,44 @@ public class Player : MonoBehaviour
                     break;
             }
             Destroy(other.gameObject);
+        }
+        else if(other.tag == "Enemy_Bullet")
+        {
+            if (!is_damaged)
+            {
+                Bullet enemy_bullet = other.GetComponent<Bullet>();
+                health -= enemy_bullet.damage;
+                bool is_boss_attack = other.name == "Boss Melee Area";
+                StartCoroutine(On_Damage(is_boss_attack));
+            }
+            if (other.GetComponent<Rigidbody>() != null)
+            {
+                Destroy(other.gameObject);
+            }
+
+        }
+    }
+
+    IEnumerator On_Damage(bool is_boss_attack)
+    {
+        is_damaged = true;
+        foreach(MeshRenderer mesh in meshs)
+        {
+            mesh.material.color = Color.yellow;
+        }
+        if (is_boss_attack)
+        {
+            rigid.AddForce(transform.forward * -25, ForceMode.Impulse);
+        }
+        yield return new WaitForSeconds(1f);
+        foreach (MeshRenderer mesh in meshs)
+        {
+            mesh.material.color = Color.white;
+        }
+        is_damaged = false;
+        if (is_boss_attack)
+        {
+            rigid.velocity = Vector3.zero;
         }
     }
 
