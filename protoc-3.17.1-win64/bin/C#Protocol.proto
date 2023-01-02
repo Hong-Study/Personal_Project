@@ -19,3 +19,30 @@ message S_TEST
 	uint32 attack = 3;
 	repeated BuffData buffs = 4;
 }
+
+
+message Person {
+  int32 packetHeader = 1;
+  string name = 2;
+  int32 id = 3;  // Unique ID number for this person.
+  string email = 4;
+
+  enum PhoneType {
+    MOBILE = 0;
+    HOME = 1;
+    WORK = 2;
+  }
+
+  message PhoneNumber {
+    string number = 1;
+    PhoneType type = 2;
+  }
+
+  repeated PhoneNumber phones = 5;
+  google.protobuf.Timestamp last_updated = 6;
+}
+
+// Our address book file is just one of these.
+message AddressBook {
+  repeated Person people = 1;
+}

@@ -22,13 +22,15 @@ int main() {
 		}
 		break;
 	}
-
+	int strlen = 0;
 	while (true) {
 		Protocol::S_TEST pkt;
 		cout << "Recv" << endl;
-		int strlen = accpet->Receive(ch, 100);
+		if ((strlen = accpet->Receive(ch, 100)) <= 0)
+			break;
 		pkt.ParseFromArray(ch, strlen);
-		cout << pkt.id() << " " << pkt.hp() << " " << pkt.attack() << endl;
+		cout << strlen << " : " << pkt.id() << " " << pkt.hp() << " " << pkt.attack() << endl;
 	}
+
 	SocketUtils::CleanUp();
 }
