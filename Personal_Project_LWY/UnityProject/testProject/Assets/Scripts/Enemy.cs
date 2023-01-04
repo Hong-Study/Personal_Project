@@ -17,11 +17,16 @@ public class Enemy : MonoBehaviour
     public GameObject bullet;
     public bool is_dead;
 
+    public int score;
+    public GameObject[] coins;
+
+
     public Rigidbody rigid;
     public BoxCollider box_collider;
     public MeshRenderer[] meshs;
     public NavMeshAgent nav;
     public Animator anim;
+    public Game_Manager manager;
 
     void Chase_Start()
     {
@@ -198,7 +203,28 @@ public class Enemy : MonoBehaviour
             }
             is_chase = false;
             nav.enabled = false;
+            Player player = target.GetComponent<Player>();
+            player.score += score;
+            int rand_coin = 0;
+            Instantiate(coins[rand_coin], transform.position + Vector3.up * 2, Quaternion.identity);
             anim.SetTrigger("doDie");
+
+            switch (enemy_type)
+            {
+                case Type.A:
+                    manager.enemy_cnt_a -= 1;
+                    break;
+                case Type.B:
+                    manager.enemy_cnt_b -= 1;
+                    break;
+                case Type.C:
+                    manager.enemy_cnt_c -= 1;
+                    break;
+                case Type.D:
+                    manager.enemy_cnt_d -= 1;
+                    break;
+            }
+
             if (is_grenade)
             {
                 react_vec = react_vec.normalized;
@@ -212,11 +238,7 @@ public class Enemy : MonoBehaviour
             {
                 rigid.AddForce((react_vec * 10), ForceMode.Impulse);
             }
-
-            if(enemy_type != Type.D)
-            {
-                Destroy(gameObject, 2);
-            }
+            Destroy(gameObject, 2);
             yield return null;
         }
     }
