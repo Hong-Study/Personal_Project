@@ -29,6 +29,6 @@ using namespace std;
 #include "Session.h"
 #include "Listener.h"
 #include "CoreGlobal.h"
-#include "PKT_Maker.h"
+#include "SendBuffer.h"
 
 inline void HandleError(string error) { cout << error << endl; }
