@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using System.Net;
 using System;
 using Google.Protobuf;
+using System.Runtime.InteropServices;
+using System.Drawing;
 
 public class Networking : MonoBehaviour
 {
@@ -61,12 +63,14 @@ public class Networking : MonoBehaviour
                     Hp = 100,
                     Attack = 10
                 };
-                byte[] datas = pkt.ToByteArray();
+
+                byte[] datas = PacketHandler.Make_login_handler(pkt);
+
                 len = socket.Send(datas);
                 Debug.Log(len + " : Success Send");
+
                 //S_TEST pkt2 = new S_TEST();
                 //pkt2.MergeFrom(datas);
-
                 
                 //data = reader.ReadLine();
                 //Debug.Log(data);

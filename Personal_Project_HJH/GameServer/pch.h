@@ -14,6 +14,6 @@
 #include <pch.h>
 using namespace std;
 
-#include "Protocol.pb.h"
+#include "CProtocol.pb.h"
 
 #define THREAD_SIZE 10

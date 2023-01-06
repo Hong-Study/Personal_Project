@@ -3,6 +3,7 @@
 #include "IocpCore.h"
 #include "NetAddress.h"
 #include "Service.h"
+#include "RecvBuffer.h"
 
 class Session : public IocpObject
 {
@@ -10,12 +11,16 @@ class Session : public IocpObject
 	friend class IocpCore;
 	friend class Service;
 
+	enum {
+		BUFFER_SIZE = 0x10000, // 64KB
+	};
 public:
 	Session();
 	virtual ~Session();
 
 public:
-	void				Send(BYTE* buffer, int32 len);
+	void				Send(SendBufferRef buffer);
+	bool				Connect();
 	void				DisConnect(const WCHAR* cause);
 
 	shared_ptr<Service>	GetService() { return _service.lock(); }
@@ -33,13 +38,13 @@ private:
 	virtual void Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
 
 private:
-	void ProcessSend(SendEvent* sendEvent, int32 numOfBytes);
+	void ProcessSend(int32 numOfBytes);
 	void ProcessRecv(int32 numOfBytes);
 	void ProcessDisconnect();
 	void ProcessConnect();
 
 	// 작업 등록
-	void RegisterSend(SendEvent* sendEvent);
+	void RegisterSend();
 	void RegisterRecv();
 	bool RegisterDisconnect();
 	bool RegisterConnect();
@@ -57,12 +62,17 @@ private:
 	atomic<bool>			_connected = false;
 
 private:
-
 	// 재활용
-	DisconnectEvent		_disconnectEvent;
-	RecvEvent			_recvEvent;
+	DisconnectEvent			_disconnectEvent;
+	ConnectEvent			_connectEvent;
+	RecvEvent				_recvEvent;
+	SendEvent				_send_event;
 
-public:
-	BYTE _recvBuffer[1000];
+private:
+	RecvBuffer				_recv_buffer;
+	
+	queue<SendBufferRef>	_send_queue;
+	atomic<bool>			_send_registered = false;
+
+	
 };
-

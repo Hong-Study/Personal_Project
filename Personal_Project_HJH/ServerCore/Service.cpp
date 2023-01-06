@@ -2,9 +2,6 @@
 #include "Service.h"
 #include "Session.h"
 
-//Service::Service(ServiceType type, NetAddress address, IocpCoreRef core, SessionFactory factory, int32 maxSessionCount)
-//	: _type(type), _netAddress(address), _iocpCore(core), _sessionFactory(factory), _maxSessionCount(maxSessionCount) {}
-
 Service::Service(ServiceType type, int maxSessionCount)
 	: _type(type), _maxSessionCount(maxSessionCount)
 {
@@ -79,10 +76,48 @@ void ServerService::SetNetAddress(NetAddress address)
 void ServerService::SetIocpCore(IocpCoreRef core)
 {
 	_iocpCore = core;
-
 }
 
 void ServerService::CloseService()
 {
 	Service::CloseService();
+}
+
+ClientService::ClientService(int maxSessionCount)
+	: Service(ServiceType::Client, maxSessionCount) {}
+
+bool ClientService::Start()
+{
+	if (CanStart() == false)
+		return false;
+
+	const int32 sessionCount = GetMaxSessionCount();
+	for (int32 i = 0; i < sessionCount; i++)
+	{
+		SessionRef session = CreateSession();
+		if (session->Connect() == false)
+			return false;
+	}
+
+	return true;
+}
+
+void ClientService::CloseService()
+{
+	Service::CloseService();
+}
+
+void ClientService::SetFactory(SessionFactory factory)
+{
+	_sessionFactory = factory;
+}
+
+void ClientService::SetNetAddress(NetAddress address)
+{
+	_netAddress = address;
+}
+
+void ClientService::SetIocpCore(IocpCoreRef core)
+{
+	_iocpCore = core;
 }

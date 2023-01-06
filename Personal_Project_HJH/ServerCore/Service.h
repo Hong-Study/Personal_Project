@@ -74,3 +74,22 @@ public:
 private:
 	ListenerRef		_listener = nullptr;
 };
+
+class ClientService : public Service
+{
+public:
+	ClientService(int maxSessionCount = 1);
+	//ServerService(NetAddress targetAddress, IocpCoreRef core, SessionFactory factory, int32 maxSessionCount = 1);
+	virtual ~ClientService() {}
+
+	virtual bool	Start() override;
+	virtual void	CloseService() override;
+
+public:
+	virtual void	SetFactory(SessionFactory factory) override;
+	virtual void	SetNetAddress(NetAddress address) override;
+	virtual void	SetIocpCore(IocpCoreRef core) override;
+
+private:
+	ListenerRef		_listener = nullptr;
+};

@@ -58,5 +58,5 @@ public:
 	SendEvent() : IocpEvent(EventType::Send) { }
 
 public:
-	vector<BYTE> buffer;
+	vector<SendBufferRef> send_buffers;
 };

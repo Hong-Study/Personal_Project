@@ -15,11 +15,17 @@
     <ClInclude Include="pch.h">
       <Filter>pch</Filter>
     </ClInclude>
-    <ClInclude Include="Protocol.pb.h">
-      <Filter>Protocol</Filter>
-    </ClInclude>
     <ClInclude Include="GameSession.h">
       <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSessionManager.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketSession.h">
+      <Filter>Main</Filter>
+    </ClInclude>
+    <ClInclude Include="CProtocol.pb.h">
+      <Filter>Protocol</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -29,11 +35,17 @@
     <ClCompile Include="main.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="Protocol.pb.cc">
-      <Filter>Protocol</Filter>
-    </ClCompile>
     <ClCompile Include="GameSession.cpp">
       <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSessionManager.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketSession.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="CProtocol.pb.cc">
+      <Filter>Protocol</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
