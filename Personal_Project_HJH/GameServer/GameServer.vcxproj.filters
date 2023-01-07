@@ -10,22 +10,28 @@
     <Filter Include="Protocol">
       <UniqueIdentifier>{5ed1f776-86fc-44ac-b425-cc28b07d261b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Session">
+      <UniqueIdentifier>{c25dcf66-93f4-4c88-a137-244770c2ce93}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>pch</Filter>
     </ClInclude>
-    <ClInclude Include="GameSession.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="GameSessionManager.h">
-      <Filter>Main</Filter>
-    </ClInclude>
-    <ClInclude Include="PacketSession.h">
-      <Filter>Main</Filter>
-    </ClInclude>
     <ClInclude Include="CProtocol.pb.h">
       <Filter>Protocol</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketSession.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSessionManager.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSession.h">
+      <Filter>Session</Filter>
+    </ClInclude>
+    <ClInclude Include="PakcetHandler.h">
+      <Filter>Main</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -35,17 +41,20 @@
     <ClCompile Include="main.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="GameSession.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="GameSessionManager.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
-    <ClCompile Include="PacketSession.cpp">
-      <Filter>Main</Filter>
-    </ClCompile>
     <ClCompile Include="CProtocol.pb.cc">
       <Filter>Protocol</Filter>
+    </ClCompile>
+    <ClCompile Include="PacketSession.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSessionManager.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSession.cpp">
+      <Filter>Session</Filter>
+    </ClCompile>
+    <ClCompile Include="PakcetHandler.cpp">
+      <Filter>Main</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

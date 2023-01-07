@@ -27,15 +27,15 @@ public:
 	void				SetService(shared_ptr<Service> service) { _service = service; }
 
 public:
-	void SetNetAddress(NetAddress address) { _addr = address; };
-	NetAddress GetAddress() { return _addr; }
-	SOCKET GetSocket() { return _sock; }
-	bool IsConnected() { return _connected; }
+	void				SetNetAddress(NetAddress address) { _addr = address; };
+	NetAddress			GetAddress() { return _addr; }
+	SOCKET				GetSocket() { return _sock; }
+	bool				IsConnected() { return _connected; }
 	shared_ptr<Session> GetSessionRef() { return static_pointer_cast<Session>(shared_from_this()); }
 
 private:
-	virtual HANDLE GetHandle() override;
-	virtual void Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
+	virtual HANDLE		GetHandle() override;
+	virtual void		Dispatch(class IocpEvent* iocpEvent, int32 numOfBytes = 0) override;
 
 private:
 	void ProcessSend(int32 numOfBytes);

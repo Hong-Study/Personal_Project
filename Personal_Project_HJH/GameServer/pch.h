@@ -15,5 +15,7 @@
 using namespace std;
 
 #include "CProtocol.pb.h"
+#include "PacketSession.h"
+#include "PakcetHandler.h"
 
 #define THREAD_SIZE 10
