@@ -35,9 +35,6 @@ void Session::DisConnect(const WCHAR* cause)
 	// TEMP
 	wcout << "Disconnect : " << cause << endl;
 
-	OnDisconnected(); // ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
-	GetService()->ReleaseSession(GetSessionRef());
-
 	RegisterDisconnect();
 }
 
@@ -102,7 +99,6 @@ void Session::ProcessRecv(int32 numOfBytes)
 	}
 
 	int32 data_size = _recv_buffer.Data_size();
-
 	int32 process_len = OnRecv(_recv_buffer.Read_pos(), data_size);
 	if (process_len < 0 || data_size < process_len || _recv_buffer.OnRead(process_len) == false) {
 		DisConnect(L"OnRead Overflow 0");
@@ -117,6 +113,9 @@ void Session::ProcessRecv(int32 numOfBytes)
 void Session::ProcessDisconnect()
 {
 	_disconnectEvent.owner = nullptr;
+
+	OnDisconnected(); // ÄÁÅÙÃ÷ ÄÚµå¿¡¼­ ÀçÁ¤ÀÇ
+	GetService()->ReleaseSession(GetSessionRef());
 }
 
 void Session::ProcessConnect()
