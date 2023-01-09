@@ -56,5 +56,19 @@
     <ClCompile Include="PakcetHandler.cpp">
       <Filter>Main</Filter>
     </ClCompile>
+<<<<<<< HEAD
+=======
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\protoc-3.17.1-win64\bin\CProtocol.proto">
+      <Filter>Protocol</Filter>
+    </None>
+    <None Include="..\..\protoc-3.17.1-win64\bin\GenPackets.bat">
+      <Filter>Protocol</Filter>
+    </None>
+    <None Include="..\..\protoc-3.17.1-win64\bin\C#Protocol.proto">
+      <Filter>Protocol</Filter>
+    </None>
+>>>>>>> d53de51730d680ab1073d197b4c88bd967534ca6
   </ItemGroup>
 </Project>

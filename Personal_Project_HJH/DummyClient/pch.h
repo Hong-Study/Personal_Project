@@ -14,3 +14,5 @@
 using namespace std;
 
 #include <pch.h>
+#include "CProtocol.pb.h"
+#include "PacketHandler.h"

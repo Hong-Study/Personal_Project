@@ -157,6 +157,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\protoc-3.17.1-win64\bin\C#Protocol.proto" />
+    <None Include="..\..\protoc-3.17.1-win64\bin\CProtocol.proto" />
+    <None Include="..\..\protoc-3.17.1-win64\bin\GenPackets.bat" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
