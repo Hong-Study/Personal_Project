@@ -15,11 +15,8 @@ SendBuffer::~SendBuffer()
 
 }
 
-void SendBuffer::CopyData(void* data, int32 len)
-{
-	if (Capacity() >= len) {
-		HandleError("CopyData");
-	}
-	::memcpy(_buffer.data(), data, len);
-	_writeSize = len;
+void SendBuffer::Close(uint32 write_size) {
+	if (write_size > Capacity())
+		return;
+	_write_size = write_size;
 }
