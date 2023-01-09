@@ -17,10 +17,7 @@ void PakcetHandler::Packet_Handler(SessionRef ref, BYTE* buffer, int32 len)
 void PakcetHandler::Handler_Login(SessionRef ref, Protocol::S_TEST&& pkt)
 {
     cout << pkt.id() << " " << pkt.hp() << " " << pkt.attack() << endl;
-<<<<<<< HEAD
     ref->Send(Make_send_buffer(pkt));
-=======
->>>>>>> develop
 }
 
 SendBufferRef PakcetHandler::Make_send_buffer(Protocol::S_TEST ptr)

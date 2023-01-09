@@ -27,10 +27,8 @@ inline SendBufferRef _Make_send_buffer(T& ptr, Protocol::Pkt_Type type)
 	header->size = data_size;
 	header->type = type;
 	ptr.SerializeToArray(&header[1], data_size);
-<<<<<<< HEAD
 	send_buffer->Close(packet_size);
-=======
->>>>>>> develop
+
 
 	return send_buffer;
 }
