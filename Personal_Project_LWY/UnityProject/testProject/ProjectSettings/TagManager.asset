@@ -11,6 +11,8 @@ TagManager:
   - Wall
   - Bullet
   - Enemy
+  - Enemy_Bullet
+  - Shop
   layers:
   - Default
   - TransparentFX
@@ -26,7 +28,7 @@ TagManager:
   - Item
   - Enemy
   - Dead_Enemy
-  - 
+  - Enemy_Bullet
   - 
   - 
   - 

@@ -134,17 +134,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CProtocol.pb.h" />
+    <ClInclude Include="GameSession.h" />
+    <ClInclude Include="PacketSession.h" />
+    <ClInclude Include="PacketHandler.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="Protocol.pb.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CProtocol.pb.cc">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PacketSession.cpp" />
+    <ClCompile Include="PacketHandler.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Protocol.pb.cc">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\protoc-3.17.1-win64\bin\C#Protocol.proto" />
+    <None Include="..\..\protoc-3.17.1-win64\bin\CProtocol.proto" />
+    <None Include="..\..\protoc-3.17.1-win64\bin\GenPackets.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

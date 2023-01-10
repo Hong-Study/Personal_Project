@@ -14,11 +14,21 @@ Session::~Session()
 
 void Session::Send(SendBufferRef buffer)
 {
-	lock_guard<SpinLock> guard(spinLock);
+	if (IsConnected() == false)
+		return;
 
-	_send_queue.push(buffer);
+	bool registerSend = false;
 
-	if (_send_registered.exchange(true) == false)
+	{
+		lock_guard<SpinLock> guard(spinLock);
+
+		_send_queue.push(buffer);
+
+		if (_send_registered.exchange(true) == false)
+			registerSend = true;
+	}
+
+	if (registerSend)
 		RegisterSend();
 }
 
@@ -34,9 +44,6 @@ void Session::DisConnect(const WCHAR* cause)
 
 	// TEMP
 	wcout << "Disconnect : " << cause << endl;
-
-	OnDisconnected(); // 컨텐츠 코드에서 재정의
-	GetService()->ReleaseSession(GetSessionRef());
 
 	RegisterDisconnect();
 }
@@ -102,7 +109,6 @@ void Session::ProcessRecv(int32 numOfBytes)
 	}
 
 	int32 data_size = _recv_buffer.Data_size();
-
 	int32 process_len = OnRecv(_recv_buffer.Read_pos(), data_size);
 	if (process_len < 0 || data_size < process_len || _recv_buffer.OnRead(process_len) == false) {
 		DisConnect(L"OnRead Overflow 0");
@@ -117,6 +123,9 @@ void Session::ProcessRecv(int32 numOfBytes)
 void Session::ProcessDisconnect()
 {
 	_disconnectEvent.owner = nullptr;
+
+	OnDisconnected(); // 컨텐츠 코드에서 재정의
+	GetService()->ReleaseSession(GetSessionRef());
 }
 
 void Session::ProcessConnect()
@@ -161,6 +170,7 @@ void Session::RegisterSend()
 	//Scatter-Gatter (흩어져 있는 데이터들을 모아서 한 방에 보낸다)
 	vector<WSABUF> wsa_bufs;
 	wsa_bufs.reserve(_send_event.send_buffers.size());
+
 	for (SendBufferRef send_buffer : _send_event.send_buffers)
 	{
 		WSABUF wsa_buf;
@@ -240,7 +250,7 @@ bool Session::RegisterConnect()
 
 	DWORD num_of_bytes = 0;
 	SOCKADDR_IN sock_addr = GetService()->GetNetAddress().GetSockAddr();
-	if (SocketUtils::ConnectEx(_sock, reinterpret_cast<SOCKADDR*>(&_addr), sizeof(_addr), nullptr, 0, &num_of_bytes, &_connectEvent) == false)
+	if (SocketUtils::ConnectEx(_sock, reinterpret_cast<SOCKADDR*>(&sock_addr), sizeof(sock_addr), nullptr, 0, &num_of_bytes, &_connectEvent) == false)
 	{
 		int32 error_code = ::WSAGetLastError();
 		if (error_code != WSA_IO_PENDING) 
