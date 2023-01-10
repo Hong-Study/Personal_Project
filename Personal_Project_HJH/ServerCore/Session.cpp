@@ -14,11 +14,21 @@ Session::~Session()
 
 void Session::Send(SendBufferRef buffer)
 {
-	lock_guard<SpinLock> guard(spinLock);
+	if (IsConnected() == false)
+		return;
 
-	_send_queue.push(buffer);
+	bool registerSend = false;
 
-	if (_send_registered.exchange(true) == false)
+	{
+		lock_guard<SpinLock> guard(spinLock);
+
+		_send_queue.push(buffer);
+
+		if (_send_registered.exchange(true) == false)
+			registerSend = true;
+	}
+
+	if (registerSend)
 		RegisterSend();
 }
 
@@ -160,6 +170,7 @@ void Session::RegisterSend()
 	//Scatter-Gatter (흩어져 있는 데이터들을 모아서 한 방에 보낸다)
 	vector<WSABUF> wsa_bufs;
 	wsa_bufs.reserve(_send_event.send_buffers.size());
+
 	for (SendBufferRef send_buffer : _send_event.send_buffers)
 	{
 		WSABUF wsa_buf;
@@ -239,7 +250,7 @@ bool Session::RegisterConnect()
 
 	DWORD num_of_bytes = 0;
 	SOCKADDR_IN sock_addr = GetService()->GetNetAddress().GetSockAddr();
-	if (SocketUtils::ConnectEx(_sock, reinterpret_cast<SOCKADDR*>(&_addr), sizeof(_addr), nullptr, 0, &num_of_bytes, &_connectEvent) == false)
+	if (SocketUtils::ConnectEx(_sock, reinterpret_cast<SOCKADDR*>(&sock_addr), sizeof(sock_addr), nullptr, 0, &num_of_bytes, &_connectEvent) == false)
 	{
 		int32 error_code = ::WSAGetLastError();
 		if (error_code != WSA_IO_PENDING) 
