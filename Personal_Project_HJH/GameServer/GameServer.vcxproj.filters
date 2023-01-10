@@ -13,7 +13,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Main</Filter>
     </ClCompile>
-    <ClCompile Include="PakcetHandler.cpp">
+    <ClCompile Include="PacketHandler.cpp">
       <Filter>Main</Filter>
     </ClCompile>
     <ClCompile Include="PacketSession.cpp">
@@ -33,7 +33,7 @@
     <ClInclude Include="GameSessionManager.h">
       <Filter>Session</Filter>
     </ClInclude>
-    <ClInclude Include="PakcetHandler.h">
+    <ClInclude Include="PacketHandler.h">
       <Filter>Main</Filter>
     </ClInclude>
     <ClInclude Include="PacketSession.h">
