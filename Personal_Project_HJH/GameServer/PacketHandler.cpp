@@ -11,13 +11,13 @@ void PacketHandler::HandlerPacket(SessionRef ref, BYTE* buffer, int32 len)
         break;
     default:
         break;
-    }
+    } 
 }
 
 void PacketHandler::HandlerMove(SessionRef ref, Protocol::S_DATA&& pkt)
 {
     cout << pkt.id() << " " << pkt.map_level() << " " << pkt.match_room() << endl;
-    ref->Send(MakeSendBuffer(pkt, Protocol::MOVE));
+    ref->Send(MakeSendBuffer(pkt,Protocol::MOVE));
 }
 
 SendBufferRef PacketHandler::MakeSendBuffer(Protocol::S_DATA ptr, Protocol::INGAME type)

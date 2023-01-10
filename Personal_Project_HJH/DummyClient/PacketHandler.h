@@ -3,21 +3,21 @@
 class PacketHandler
 {
 public:
-	static void Packet_Handler(SessionRef ref, BYTE* buffer, int32 len);
+	static void HandlerPacket(SessionRef ref, BYTE* buffer, int32 len);
 
-	static SendBufferRef Make_send_buffer(Protocol::S_TEST ptr);
+	static SendBufferRef MakeSendBuffer(Protocol::S_DATA ptr, Protocol::INGAME type);
 
 private:
-	static void Handler_Login(SessionRef ref, Protocol::S_TEST&& pkt);
+	static void HandlerMove(SessionRef ref, Protocol::S_DATA&& pkt);
 };
 
 struct Pkt_Header {
 	google::protobuf::uint32 size;
-	Protocol::Pkt_Type type;
+	Protocol::INGAME type;
 };
 
 template<typename T>
-inline SendBufferRef _Make_send_buffer(T& ptr, Protocol::Pkt_Type type)
+inline SendBufferRef _MakeSendBuffer(T& ptr, Protocol::INGAME type)
 {
 	const uint16 data_size = static_cast<uint16>(ptr.ByteSizeLong());
 	const uint16 packet_size = data_size + sizeof(Pkt_Header);
@@ -33,7 +33,7 @@ inline SendBufferRef _Make_send_buffer(T& ptr, Protocol::Pkt_Type type)
 }
 
 template<typename Packet_Type>
-inline Packet_Type Handler_Packet(BYTE* buffer, int32 len)
+inline Packet_Type ParsingPacket(BYTE* buffer, int32 len)
 {
 	Packet_Type pkt;
 	pkt.ParseFromArray(buffer + sizeof(Pkt_Header), len);
