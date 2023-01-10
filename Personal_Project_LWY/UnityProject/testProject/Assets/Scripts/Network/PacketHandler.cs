@@ -12,7 +12,7 @@ using Google.Protobuf.Protocol;
 class PacketHandler
 {
     public static PacketHandler Instance = new PacketHandler();
-    public static byte[] Make_login_handler(S_TEST pkt)
+    public static byte[] Make_login_handler(S_DATA pkt)
     {
         Pkt_Head head = new Pkt_Head();
         int size = Marshal.SizeOf<Pkt_Head>();
@@ -32,5 +32,5 @@ class PacketHandler
 struct Pkt_Head
 {
     public uint size;
-    public Pkt_Type type;
+    public INGAME type;
 };

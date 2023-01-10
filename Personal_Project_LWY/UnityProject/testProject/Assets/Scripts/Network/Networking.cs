@@ -57,11 +57,11 @@ public class Networking : MonoBehaviour
             if (isConnected)
             {
                 int len = 0;
-                S_TEST pkt = new S_TEST()
+                S_DATA pkt = new S_DATA()
                 {
                     Id = 1,
-                    Hp = 100,
-                    Attack = 10
+                    MapLevel = 100,
+                    MatchRoom = 10
                 };
 
                 byte[] datas = PacketHandler.Make_login_handler(pkt);
