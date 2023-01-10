@@ -23,7 +23,6 @@ void GameSession::OnSend(int32 len)
     
 }
 
-
 void GameSession::HANDLE_URL_MAKING(BYTE* buffer, int32 len)
 {
 }

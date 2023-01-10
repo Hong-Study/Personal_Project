@@ -5,7 +5,7 @@ void GameSession::OnConnected()
 {
     Protocol::S_TEST pkt;
     pkt.set_id(1);
-    pkt.set_hp(100);
+    pkt.set_hp(200);
     pkt.set_attack(10);
     SendBufferRef ref = PacketHandler::Make_send_buffer(pkt);
 
